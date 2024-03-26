@@ -63,15 +63,32 @@ public class DesignTest {
         // Снимаем скриншот страницы
         Screenshot actualScreenshot = new AShot()
                 .shootingStrategy(ShootingStrategies.viewportPasting(200))
-                .shootingStrategy(ShootingStrategies.scaling(1.5f))
+                .shootingStrategy(ShootingStrategies.scaling(1.25f))
                 .coordsProvider(new WebDriverCoordsProvider())
                 .imageCropper(new IndentCropper()) // Обрезаем изображение, если требуется
                 .takeScreenshot(WebDriverRunner.getWebDriver());
 
-        // Загружаем эталонный скриншот
-        BufferedImage expectedImage = ImageIO.read(new File(
-                "C:\\Users\\denis.buyanov\\Downloads\\DesignTest\\src\\test\\resources" +
-                        "\\expected_screenshots\\expected_design_1920px.png"));
+//        // Загружаем эталонный скриншот
+//        BufferedImage expectedImage = ImageIO.read(new File(
+//                "C:\\Users\\denis.buyanov\\Downloads\\DesignTest\\src\\test\\resources" +
+//                        "\\expected_screenshots\\expected_design_1920px.png"));
+
+        // Открываем вторую веб-страницу
+        open("https://l92.epgu-front.test.gosuslugi.ru/600103/1/form");
+        // Если есть черновик - раскомментить чтобы продолжить
+//        $(By.xpath("//*[@id='print-page']/portal-new-sf-player/epgu-cf-ui-modal-container/div/" +
+//                "epgu-constructor-confirmation-modal/epgu-cf-ui-cta-modal/div[2]/ng-scrollbar/" +
+//                "div/div/div/div/div/div/div/div/lib-button[1]/div/button"))
+//                .click();
+        Selenide.sleep(3000);
+
+        // Снимаем скриншот страницы
+        Screenshot expectedImage = new AShot()
+                .shootingStrategy(ShootingStrategies.viewportPasting(200))
+                .shootingStrategy(ShootingStrategies.scaling(1.25f))
+                .coordsProvider(new WebDriverCoordsProvider())
+                .imageCropper(new IndentCropper()) // Обрезаем изображение, если требуется
+                .takeScreenshot(WebDriverRunner.getWebDriver());
 
         // Создаем объект для сравнения скриншотов
         ImageDiffer imageDiffer = new ImageDiffer();
@@ -80,7 +97,7 @@ public class DesignTest {
         imageDiffer.withDiffMarkupPolicy(new ImageMarkupPolicy().withDiffColor(Color.RED));
 
         // Сравниваем скриншоты
-        ImageDiff diff = imageDiffer.makeDiff(expectedImage, actualScreenshot.getImage());
+        ImageDiff diff = imageDiffer.makeDiff(expectedImage.getImage(), actualScreenshot.getImage());
 
         // Проверяем, есть ли различия между скриншотами
         if (diff.getDiffSize() != 0) {
@@ -88,7 +105,7 @@ public class DesignTest {
             Allure.label("testType", "screenshotDiff");
 
             // Прикрепляем скриншоты к отчету Allure
-            attachImg("expected", expectedImage);
+            attachImg("expected", expectedImage.getImage());
             attachImg("actual", actualScreenshot.getImage());
 
             // Прикрепляем выделенное изображение с различиями к отчету Allure
